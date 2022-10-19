@@ -9,6 +9,10 @@
     <link rel="stylesheet" href="libs/codemirror/themes/solarized.css">
     <link rel="stylesheet" href="style.css" type="text/css" media="all">
 
+    <script src="https://cdn.jsdelivr.net/npm/scittle@0.3.10/dist/scittle.min.js"></script>
+    <script>var SCITTLE_NREPL_WEBSOCKET_PORT = 1340;</script>
+    <script src="https://cdn.jsdelivr.net/npm/scittle@0.3.10/dist/scittle.nrepl.min.js"></script>
+
     <script type="text/javascript" src="libs/jquery-2.1.1.min.js"></script>
     <script type="text/javascript" src="libs/lodash.min.js"></script>
     <script type="text/javascript" src="libs/riot.js"></script>
@@ -16,6 +20,10 @@
     <script type="text/javascript" src="libs/codemirror/codemirror.js"></script>
     <script type="text/javascript" src="libs/codemirror/addon/edit/closebrackets.js"></script>
     <script type="text/javascript" src="libs/codemirror/mode/javascript/javascript.js"></script>
+
+    <script type="text/javascript" src="https://codemirror.net/5/mode/clojure/clojure.js"></script>
+    <script type="text/javascript" src="https://codemirror.net/5/addon/edit/matchbrackets.js"></script>
+
 
     <script type="text/javascript" src="libs/unobservable.js"></script>
 
@@ -84,21 +92,15 @@
     </script>
 
     <script type="text/plain" id="default-elev-implementation">
-{
-    init: function(elevators, floors) {
-        var elevator = elevators[0]; // Let's use the first elevator
+{:init (fn [elevators floors]
+         (let [elevator (first elevators)]
+           (.on elevator  "idle" (fn []
+                                   (.goToFloor elevator 0)
+                                   (.goToFloor elevator 1)))))
 
-        // Whenever the elevator is idle (has no more queued destinations) ...
-        elevator.on("idle", function() {
-            // let's go to all the floors (or did we forget one?)
-            elevator.goToFloor(0);
-            elevator.goToFloor(1);
-        });
-    },
-    update: function(dt, elevators, floors) {
-        // We normally don't need to do anything here
-    }
-}
+ :update (fn [dt elevators floors]
+           nil)}
+
     </script>
     <script type="text/plain" id="devtest-elev-implementation">
 {

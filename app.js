@@ -7,7 +7,7 @@ var createEditor = function() {
         indentUnit: 4,
         indentWithTabs: false,
         theme: "solarized light",
-        mode: "javascript",
+        mode: "clojure",
         autoCloseBrackets: true,
         extraKeys: {
             // the following Tab key mapping is from http://codemirror.net/doc/manual.html#keymaps
@@ -191,7 +191,7 @@ $(function() {
             }
         });
 
-        var codeObj = editor.getCodeObj();
+        var codeObj = editor.getCode();
         console.log("Starting...");
         app.worldController.start(app.world, codeObj, window.requestAnimationFrame, autoStart);
     };
