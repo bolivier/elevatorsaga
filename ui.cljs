@@ -40,8 +40,28 @@
      "2x"]
     [:i.fa.fa-plus-square.timescale_increase.unselectable]]])
 
+(defn up-indicator [active?]
+  [:span.directionindicator.directionindicatorup [:i.fa.fa-arrow-circle-up.up {:className (when active? "activated")}]])
+
+(defn down-indicator [active?]
+  [:span.directionindicator.directionindicatordown [:i.fa.fa-arrow-circle-down.down {:className (when active? "activated")}]])
+
+(defn elevator-floor-button [floor pressed?]
+  [:span.buttonpress {:className (when pressed? "activated")}
+      floor])
+
+(defn elevator []
+  (r/with-let [pressed-buttons #{1 :up}]
+   [:div.elevator.movable {:style {:width "50px"}}
+    [up-indicator (:up pressed-buttons)]
+    [:span.floorindicator [:span 1]]
+    [down-indicator (:down pressed-buttons)]
+    [:span.buttonindicator
+     (for [n (range 3)]
+       [elevator-floor-button n (contains? pressed-buttons n)])]]))
+
 (defn elevators [challenge]
-  nil)
+  [elevator])
 
 (defn floor [{:keys [num offset top?]}]
   [:div.floor {:style {:top (str offset "px")}}
