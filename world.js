@@ -314,7 +314,8 @@ var createWorldController = function (dtMax) {
           firstUpdate = false;
           // This logic prevents infite loops in usercode from breaking the page permanently - don't evaluate user code until game is unpaused.
           try {
-            const init = window.scittle.core.eval_string(`(:init ${codeObj})`);
+            window.scittle.core.eval_string(codeObj);
+            const init = window.scittle.core.eval_string("elevatorsaga/init");
             init(world.elevatorInterfaces, world.floors);
             world.init();
           } catch (e) {
@@ -326,9 +327,7 @@ var createWorldController = function (dtMax) {
         var scaledDt = dt * 0.001 * controller.timeScale;
         scaledDt = Math.min(scaledDt, dtMax * 3 * controller.timeScale); // Limit to prevent unhealthy substepping
         try {
-          const update = window.scittle.core.eval_string(
-            `(:update ${codeObj})`
-          );
+          const update = window.scittle.core.eval_string(`elevatorsaga/update`);
           update(scaledDt, world.elevatorInterfaces, world.floors);
         } catch (e) {
           controller.handleUserCodeError(e);

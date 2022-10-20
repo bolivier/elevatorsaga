@@ -97,15 +97,16 @@
     </script>
 
     <script type="text/plain" id="default-elev-implementation">
-{:init (fn [elevators floors]
-         (let [elevator (first elevators)]
-           (.on elevator  "idle" (fn []
-                                   (.goToFloor elevator 0)
-                                   (.goToFloor elevator 1)))))
+     (ns elevatorsaga)
 
- :update (fn [dt elevators floors]
-           nil)}
+(defn init [elevators floors]
+  (let [elevator (first elevators)]
+    (.on elevator  "idle" (fn []
+                            (.goToFloor elevator 0)
+                            (.goToFloor elevator 1)))))
 
+(defn update [dt elevators floors]
+  nil)
     </script>
     <script type="text/plain" id="devtest-elev-implementation">
 {
