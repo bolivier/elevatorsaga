@@ -17,6 +17,8 @@
     <script crossorigin src="https://unpkg.com/react-dom@17/umd/react-dom.production.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/scittle@0.3.10/dist/scittle.reagent.js" type="application/javascript"></script>
     <script defer type="application/x-scittle" src="/ui.cljs"></script>
+    <script defer type="application/x-scittle" src="/setup.cljs"></script>
+
 
     <script type="text/javascript" src="libs/jquery-2.1.1.min.js"></script>
     <script type="text/javascript" src="libs/lodash.min.js"></script>
@@ -185,11 +187,13 @@
         <span id="fitness_message" style="float: right"></span>
         <div style="clear:both;"></div>
 
+        <div id="reagent"></div>
+
         <div style="margin-top: 20px">
             <h3>Confused? Open the <a href="documentation.html">Help and API documentation</a> page</h3>
         </div>
 
-        <div id="reagent"></div>
+
 
         <div class="footer">
             <h4>Made by Magnus Wolffelt and contributors</h4>
