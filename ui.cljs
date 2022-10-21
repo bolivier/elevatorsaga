@@ -1,7 +1,8 @@
 (ns ui
   (:require
    [reagent.core :as r]
-   [reagent.dom :as rdom]))
+   [reagent.dom :as rdom]
+   [promesa.core :as p]))
 
 (defprotocol ITick
   (tick [this]))
@@ -9,8 +10,10 @@
 (defrecord World [elevators floor-count]
   ITick
   (tick [world]
-    (update world :elevators (fn [elevators]
-                               (mapv tick elevators)))))
+    (-> world
+        (update :elevators (fn [elevators]
+                             (mapv tick elevators)))
+        (update :duration + 50))))
 
 (defrecord Elevator [current-floor speed travel-progress destination-floor
                      percent-change x-offset width pressed-buttons]
@@ -61,12 +64,28 @@
                                         :seconds 60)}])
 
 (def world (r/atom (map->World
-                    {:floor-height   50
+                    {:time-running 0
+                     :floor-height   50
                      :elevator-count 1
                      :spawn-rate     0.5
                      :floor-count    3
                      :elevators      [(create-new-elevator)]})))
 
+(def started? (r/atom false))
+(defn start-ticking []
+  (reset! started? true)
+  (p/loop []
+    (swap! world tick)
+    (p/delay 50)
+    (when @started? (p/recur))))
+(defn pause-ticking []
+  (reset! started? false))
+
+(comment
+  @started?
+  (start-ticking)
+  (stop-ticking)
+  )
 
 (def floor-height 50)
 
@@ -84,9 +103,13 @@
   [:div
    [:div.left
     [:h3 (str "Challenge #" num ": ") (-> challenge :condition :description)]]
-   [:button.right.startstop.unselectable {:style {:width "110px"}}
-    "Start" ;; TODO make dynamic
-    ]
+   [:button.right.startstop {:style {:width "110px"}
+                                          :onClick (if @started?
+                                                     pause-ticking
+                                                     start-ticking)}
+    (if @started?
+      "Pause"
+      "Start")]
    [:h3.right
     [:i.fa.fa-minus-square.timescale_decrease.unselectable]
     [:span.emphasis-color {:style {:display :inline-block
@@ -136,6 +159,29 @@
               :offset height
               :top? (= total-floors (inc n))}])]))
 
+(defn stats-container []
+  [:div.statscontainer
+   [:div {:style {:top "20px"}}
+    [:span.key  "Transported"]
+    [:span.value.transportedcounter 0]]
+
+   [:div {:style {:top "40px"}}
+    [:span.key "Elapsed"] [:span.value.elapsedtime (int (/ (:duration @world)
+                                                           1000)) "s"]]
+
+   [:div {:style {:top "60px"}}
+    [:span.key "Transported/s"] [:span.value.transportedpersec 0]]
+
+   [:div {:style {:top "80px"}}
+    [:span.key "Avg waiting time"] [:span.value.avgwaittime 0]]
+
+   [:div {:style {:top "100px"}}
+    [:span.key "Max waiting time"] [:span.value.maxwaittime 0]]
+
+   [:div {:style {:top "120px"}}
+    [:span.key {:title "Number of floors that have been travelled by elevators"}
+     "Moves"] [:span.value.movecount 0]]])
+
 (defn my-component []
   (let [challenge (first challenges)]
     [:div {:style {:width "100%"}}
@@ -147,7 +193,8 @@
       [:div.innerworld {:style {:height (* (-> challenge :options :floor-count)
                                            (:floor-height default-options))}}
        [floors challenge]
-       [elevators challenge]]]
+       [elevators challenge]]
+      [stats-container]]
 
      [:div.codestatus]
 
@@ -173,19 +220,12 @@
 (defn create-editor []
   (js/createEditor))
 
-(defonce interval (atom nil))
-(defn start-interval []
-  (let [cb (js/setInterval (fn []
-                             (swap! world tick))
-                           50)]
-    (reset! interval cb)))
-(defn stop-interval []
-  (when-let [cb @interval]
-    (js/clearInterval cb)))
 
 (rdom/render [my-component] (.getElementById js/document "reagent"))
 (create-editor)
 
 (comment
+
+  @interval
   (start-interval)
   (stop-interval))
