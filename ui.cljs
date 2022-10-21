@@ -27,8 +27,18 @@
               (update :current-floor (if (< current-floor destination-floor) inc dec)))
 
           elevator))
-      elevator)
-    ))
+      elevator)))
+
+(defn create-new-elevator []
+  (map->Elevator
+   {:current-floor     0
+    :speed             10 ;; ticks required to travel between floors
+    :travel-progress   0
+    :destination-floor 0
+    :percent-change    0
+    :x-offset          200
+    :width             40 ;; proxy for size
+    :pressed-buttons   #{}}))
 
 (defn description [users seconds]
   [:span
@@ -55,15 +65,7 @@
                      :elevator-count 1
                      :spawn-rate     0.5
                      :floor-count    3
-                     :elevators      [(map->Elevator
-                                       {:current-floor     0
-                                        :speed             10 ;; ticks required to travel between floors
-                                        :travel-progress   0
-                                        :destination-floor 1
-                                        :percent-change    0
-                                        :x-offset          200
-                                        :width             40 ;; proxy for size
-                                        :pressed-buttons   #{2 :up :down}})]})))
+                     :elevators      [(create-new-elevator)]})))
 
 
 (def floor-height 50)
@@ -136,7 +138,7 @@
 
 (defn my-component []
   (let [challenge (first challenges)]
-    [:div
+    [:div {:style {:width "100%"}}
      [:hr]
 
      [challenge-header 1 challenge]
@@ -147,7 +149,29 @@
        [floors challenge]
        [elevators challenge]]]
 
+     [:div.codestatus]
+
+     [:div.code
+      [:textarea {:name "Code"
+                  :id "code"}]]
+     [:div {:style {:display :flex
+                    :justify-content "space-between"
+                    :width "100%"}}
+      [:div
+       [:button#button_reset "Reset"]
+       [:button#button_resetundo "Undo reset"]]
+      [:div {:style {:display :flex
+                     :justify-content :end}}
+       [:span#save_message]
+       [:span#fitness_message]
+       [:button#button_apply "Apply"]
+       [:button#button_save "Save"]
+       ]]
+
      [:br]]))
+
+(defn create-editor []
+  (js/createEditor))
 
 (defonce interval (atom nil))
 (defn start-interval []
@@ -160,6 +184,7 @@
     (js/clearInterval cb)))
 
 (rdom/render [my-component] (.getElementById js/document "reagent"))
+(create-editor)
 
 (comment
   (start-interval)
